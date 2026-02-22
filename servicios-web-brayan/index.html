@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Servicios Web - Brayan Parra</title>
+
+    <!-- Fuente moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <h2>Servicios Web</h2>
+    <ul>
+        <li><a href="#intro">Introducción</a></li>
+        <li><a href="#soa">SOA</a></li>
+        <li><a href="#rest">REST vs SOAP</a></li>
+        <li><a href="#protocolos">Protocolos</a></li>
+        <li><a href="#implementacion">Implementación</a></li>
+        <li><a href="#seguridad">Seguridad</a></li>
+    </ul>
+</nav>
+
+<header>
+    <h1>Servicios Web</h1>
+    <p>Proyecto Académico - INTEP</p>
+</header>
+
+<section id="intro" class="card">
+    <h2>1. ¿Qué son los Servicios Web?</h2>
+    <p>
+        Los servicios web son mecanismos de comunicación entre aplicaciones distribuidas que permiten el intercambio de datos mediante protocolos estándar como HTTP.
+        Facilitan la interoperabilidad entre sistemas desarrollados en diferentes lenguajes y plataformas.
+    </p>
+    <p>
+        Son fundamentales en arquitecturas modernas, microservicios y aplicaciones empresariales.
+    </p>
+</section>
+
+<section id="soa" class="card">
+    <h2>2. Arquitectura Orientada a Servicios (SOA)</h2>
+    <p>
+        SOA es un modelo arquitectónico que organiza las aplicaciones como un conjunto de servicios independientes,
+        reutilizables e interoperables.
+    </p>
+    <ul>
+        <li>Modularidad</li>
+        <li>Escalabilidad</li>
+        <li>Reutilización</li>
+        <li>Interoperabilidad</li>
+    </ul>
+</section>
+
+<section id="rest" class="card">
+    <h2>3. REST vs SOAP</h2>
+
+    <div class="grid">
+        <div>
+            <h3>REST</h3>
+            <ul>
+                <li>Basado en HTTP</li>
+                <li>Formato común: JSON</li>
+                <li>Ligero y flexible</li>
+                <li>Usa URIs para identificar recursos</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3>SOAP</h3>
+            <ul>
+                <li>Basado en XML</li>
+                <li>Utiliza WSDL</li>
+                <li>Más estructurado y formal</li>
+                <li>Mayor seguridad integrada</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section id="protocolos" class="card">
+    <h2>4. Protocolos y Estándares</h2>
+
+    <h3>HTTP</h3>
+    <p>Métodos: GET, POST, PUT, DELETE.</p>
+    <p>Códigos de estado: 200 (OK), 404 (No encontrado), 500 (Error servidor).</p>
+
+    <h3>JSON</h3>
+    <p>Formato ligero de intercambio de datos utilizado en servicios REST.</p>
+
+    <h3>XML</h3>
+    <p>Lenguaje de marcado estructurado utilizado principalmente en SOAP.</p>
+
+    <h3>WSDL</h3>
+    <p>Describe las operaciones disponibles en un servicio SOAP.</p>
+
+    <h3>UDDI</h3>
+    <p>Directorio para registrar y descubrir servicios web.</p>
+</section>
+
+<section id="implementacion" class="card">
+    <h2>5. Implementación REST (Ejemplo práctico)</h2>
+    <p>
+        Un servicio REST utiliza recursos identificados por URIs y opera sobre ellos mediante métodos HTTP.
+    </p>
+
+    <button onclick="cargarUsuarios()">Cargar Usuarios</button>
+    <div id="resultado"></div>
+</section>
+
+<section id="seguridad" class="card">
+    <h2>6. Seguridad en Servicios Web</h2>
+
+    <h3>Autenticación vs Autorización</h3>
+    <p>Autenticación verifica quién eres. Autorización define qué puedes hacer.</p>
+
+    <h3>JWT</h3>
+    <p>
+        JSON Web Token es un mecanismo de autenticación basado en tokens compuestos por:
+        Header, Payload y Signature.
+    </p>
+
+    <h3>OAuth2</h3>
+    <p>
+        Protocolo de autorización que permite acceso seguro sin compartir credenciales.
+    </p>
+
+    <h3>Riesgos comunes</h3>
+    <ul>
+        <li>CSRF</li>
+        <li>MITM</li>
+        <li>Inyección de código</li>
+    </ul>
+</section>
+
+<footer>
+    <p></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
