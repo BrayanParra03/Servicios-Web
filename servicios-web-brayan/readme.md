@@ -19,7 +19,7 @@ La API implementa autenticación mediante API Key.
 
 Header requerido:
 
-x-api-key: 123456
+x-api-key: ******
 
 ---
 
