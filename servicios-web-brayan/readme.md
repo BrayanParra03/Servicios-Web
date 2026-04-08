@@ -28,28 +28,28 @@ x-api-key: 123456
 ### 🔹 GET /usuarios
 Obtiene todos los usuarios
 
-![GET](METODO GET.jpg)
+![GET](metodoget.jpg)
 
 ---
 
 ### 🔹 POST /usuarios
 Crea un nuevo usuario
 
-![POST](METODO POST.jpg)
+![POST](metodopost.jpg)
 
 ---
 
 ### 🔹 PUT /usuarios/:id
 Actualiza un usuario existente
 
-![PUT](METODO PUT.jpg)
+![PUT](metodoput.jpg)
 
 ---
 
 ### 🔹 DELETE /usuarios/:id
 Elimina un usuario
 
-![DELETE](METODO DELETE.jpg)
+![DELETE](metododelete.jpg)
 
 ---
 
