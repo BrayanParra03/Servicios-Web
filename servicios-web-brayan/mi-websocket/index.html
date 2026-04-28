@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Local Dark Mode</title>
+    <style>
+        /* Reset y estilos generales */
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Modal de Conexión */
+        #panelConexion { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(13, 17, 23, 0.95); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .caja-login { background-color: #161b22; padding: 30px; border-radius: 10px; border: 1px solid #30363d; width: 350px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .caja-login h2 { margin-top: 0; text-align: center; color: #58a6ff; }
+        .caja-login label { font-size: 0.9em; margin-top: 10px; display: block; color: #8b949e; }
+        input[type="text"] { width: 100%; padding: 10px; margin: 8px 0 15px; background-color: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; }
+        input[type="text"]:focus { outline: none; border-color: #58a6ff; }
+        button.btn-principal { width: 100%; padding: 10px; background-color: #238636; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button.btn-principal:hover { background-color: #2ea043; }
+
+        /* Estructura Principal del Chat */
+        #panelChat { display: none; height: 100%; width: 100%; }
+        .app-layout { display: flex; height: 100%; width: 100%; }
+        
+        /* Barra Lateral (Usuarios) */
+        .sidebar { width: 280px; background-color: #161b22; border-right: 1px solid #30363d; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #30363d; }
+        .sidebar-header h3 { margin: 0 0 5px 0; font-size: 1.2em; }
+        .mi-perfil { font-size: 0.85em; color: #8b949e; }
+        .lista-usuarios-contenedor { flex: 1; overflow-y: auto; padding: 15px; }
+        .usuario-online { display: flex; align-items: center; margin-bottom: 12px; font-size: 0.95em; padding: 8px; border-radius: 6px; background-color: #0d1117; border: 1px solid #30363d;}
+        .punto-verde { width: 10px; height: 10px; background-color: #3fb950; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 5px #3fb950;}
+
+        /* Área de Chat Principal */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background-color: #0d1117; }
+        #chatBox { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* Globos de Mensajes */
+        .mensaje { padding: 10px 14px; border-radius: 18px; max-width: 70%; word-wrap: break-word; line-height: 1.4; position: relative; }
+        .mensaje.yo { background-color: #1f6feb; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .mensaje.otro { background-color: #21262d; border: 1px solid #30363d; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .mensaje b { display: block; font-size: 0.8em; margin-bottom: 4px; opacity: 0.8; }
+        .hora { font-size: 0.7em; opacity: 0.6; float: right; margin-left: 15px; margin-top: 5px; }
+        
+        .sistema { align-self: center; background-color: #161b22; padding: 5px 15px; border-radius: 20px; font-size: 0.8em; color: #8b949e; border: 1px solid #30363d; }
+        #indicadorEscribiendo { height: 20px; font-size: 0.8em; color: #8b949e; font-style: italic; padding: 0 20px; margin-bottom: 10px; }
+
+        /* Barra de Entrada de Texto */
+        .input-area { padding: 15px 20px; background-color: #161b22; border-top: 1px solid #30363d; display: flex; gap: 10px; align-items: center; }
+        .input-area input[type="text"] { flex: 1; margin: 0; background-color: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 24px; color: white; }
+        .btn-enviar { background-color: #1f6feb; border: none; color: white; padding: 12px 20px; border-radius: 24px; cursor: pointer; font-weight: bold; }
+        .btn-enviar:hover { background-color: #388bfd; }
+        .btn-adjunto { background-color: #30363d; border: none; color: white; padding: 12px; border-radius: 50%; cursor: pointer; font-size: 1.1em; display: flex; justify-content: center; align-items: center; width: 45px; height: 45px; }
+        .btn-adjunto:hover { background-color: #8b949e; }
+        
+        /* Imágenes enviadas */
+        .img-chat { max-width: 100%; border-radius: 8px; margin-top: 5px; max-height: 250px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+        .archivo-link { color: #58a6ff; text-decoration: none; display: inline-block; margin-top: 5px; font-weight: bold; background: rgba(88, 166, 255, 0.1); padding: 8px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="panelConexion">
+        <div class="caja-login">
+            <h2>Ingresar al Chat</h2>
+            <label>IP del Servidor:</label>
+            <input type="text" id="ip" value="localhost">
+            <label>Puerto:</label>
+            <input type="text" id="puerto" value="8080">
+            <label>Tu Nombre:</label>
+            <input type="text" id="usuario" placeholder="Ej: Neo" required>
+            <button class="btn-principal" onclick="conectar()">Conectar</button>
+        </div>
+    </div>
+
+    <div id="panelChat">
+        <div class="app-layout">
+            
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Chat Central</h3>
+                    <div class="mi-perfil">🟢 Conectado como: <b id="nombreUsuario"></b></div>
+                </div>
+                <div class="lista-usuarios-contenedor">
+                    <h4 style="font-size: 0.85em; color: #8b949e; text-transform: uppercase; margin-top: 0;">En Línea</h4>
+                    <div id="listaUsuarios"></div>
+                </div>
+            </div>
+
+            <div class="chat-area">
+                <div id="chatBox"></div>
+                <div id="indicadorEscribiendo"></div>
+                
+                <div class="input-area">
+                    <input type="file" id="archivoInput" style="display:none;" onchange="manejarArchivo(event)">
+                    <button class="btn-adjunto" onclick="document.getElementById('archivoInput').click()" title="Adjuntar archivo">📎</button>
+                    
+                    <input type="text" id="mensaje" placeholder="Escribe un mensaje..." onkeypress="manejarEnter(event)" oninput="manejarEscritura()">
+                    <button class="btn-enviar" onclick="enviarMensaje()">Enviar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let miUsuario = '';
+        let ultimoEnvioEscribiendo = 0;
+        let timeoutOcultarEscribiendo;
+
+        function conectar() {
+            const ip = document.getElementById('ip').value || 'localhost';
+            const puerto = document.getElementById('puerto').value || '8080';
+            miUsuario = document.getElementById('usuario').value || 'Anónimo';
+
+            const url = `ws://${ip}:${puerto}`;
+            ws = new WebSocket(url);
+
+            ws.onopen = () => {
+                document.getElementById('panelConexion').style.display = 'none';
+                document.getElementById('panelChat').style.display = 'block';
+                document.getElementById('nombreUsuario').innerText = miUsuario;
+                
+                ws.send(JSON.stringify({ tipo: 'conexion', usuario: miUsuario }));
+            };
+
+            ws.onmessage = (evento) => {
+                const datos = JSON.parse(evento.data);
+                
+                if (datos.tipo === 'sistema') {
+                    agregarMensajeSistema(datos.mensaje);
+                } else if (datos.tipo === 'mensaje') {
+                    agregarMensajeChat(datos.usuario, datos.mensaje, datos.hora);
+                    document.getElementById('indicadorEscribiendo').innerText = '';
+                } else if (datos.tipo === 'archivo') {
+                    // Procesamos el nuevo tipo de mensaje multimedia
+                    agregarMensajeArchivo(datos.usuario, datos.nombreArchivo, datos.tipoMime, datos.contenido, datos.hora);
+                    document.getElementById('indicadorEscribiendo').innerText = '';
+                } else if (datos.tipo === 'listaUsuarios') {
+                    actualizarListaUsuarios(datos.usuarios);
+                } else if (datos.tipo === 'escribiendo') {
+                    mostrarEscribiendo(datos.usuario);
+                } else if (datos.tipo === 'historial') {
+                    datos.mensajes.forEach(msg => {
+                        // El historial ahora puede contener mensajes o archivos
+                        if (msg.tipo === 'mensaje') {
+                            agregarMensajeChat(msg.usuario, msg.mensaje, msg.hora);
+                        } else if (msg.tipo === 'archivo') {
+                            agregarMensajeArchivo(msg.usuario, msg.nombreArchivo, msg.tipoMime, msg.contenido, msg.hora);
+                        }
+                    });
+                }
+            };
+
+            ws.onerror = () => {
+                alert('Error: No se pudo conectar. Verifica la IP y que el servidor de Node.js esté corriendo.');
+            };
+        }
+
+        function manejarEscritura() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+            const ahora = Date.now();
+            if (ahora - ultimoEnvioEscribiendo > 1000) {
+                ws.send(JSON.stringify({ tipo: 'escribiendo' }));
+                ultimoEnvioEscribiendo = ahora;
+            }
+        }
+
+        function mostrarEscribiendo(usuarioEscribiendo) {
+            const indicador = document.getElementById('indicadorEscribiendo');
+            indicador.innerText = `${usuarioEscribiendo} está escribiendo...`;
+            clearTimeout(timeoutOcultarEscribiendo);
+            timeoutOcultarEscribiendo = setTimeout(() => { indicador.innerText = ''; }, 2000);
+        }
+
+        function enviarMensaje() {
+            const inputMensaje = document.getElementById('mensaje');
+            const texto = inputMensaje.value;
+            
+            if (texto.trim() !== '' && ws) {
+                ws.send(JSON.stringify({ tipo: 'mensaje', usuario: miUsuario, mensaje: texto }));
+                inputMensaje.value = ''; 
+            }
+        }
+
+        // --- NUEVA LÓGICA PARA LEER Y ENVIAR ARCHIVOS EN BASE64 ---
+        function manejarArchivo(evento) {
+            const archivo = evento.target.files[0];
+            if (!archivo || !ws) return;
+
+            const lector = new FileReader();
+            
+            // Cuando el navegador termine de leer el archivo, ejecutará esto:
+            lector.onload = function(e) {
+                const base64Contenido = e.target.result; // El archivo convertido a texto
+                
+                const paqueteArchivo = {
+                    tipo: 'archivo',
+                    usuario: miUsuario,
+                    nombreArchivo: archivo.name,
+                    tipoMime: archivo.type,
+                    contenido: base64Contenido
+                };
+                
+                ws.send(JSON.stringify(paqueteArchivo));
+                document.getElementById('archivoInput').value = ''; // Limpiar el input
+            };
+            
+            // Le pedimos al navegador que lea el archivo como una Data URL (Base64)
+            lector.readAsDataURL(archivo);
+        }
+
+        function manejarEnter(evento) {
+            if (evento.key === 'Enter') enviarMensaje();
+        }
+
+        function agregarMensajeChat(usuario, mensaje, hora) {
+            const chatBox = document.getElementById('chatBox');
+            const div = document.createElement('div');
+            const spanHora = `<span class="hora">${hora}</span>`;
+            
+            div.className = usuario === miUsuario ? 'mensaje yo' : 'mensaje otro';
+            div.innerHTML = `<b>${usuario === miUsuario ? 'Tú' : usuario}</b> ${mensaje} ${spanHora}`;
+            
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // --- NUEVA LÓGICA PARA PINTAR FOTOS O LINKS DE ARCHIVOS EN PANTALLA ---
+        function agregarMensajeArchivo(usuario, nombreArchivo, tipoMime, contenido, hora) {
+            const chatBox = document.getElementById('chatBox');
+            const div = document.createElement('div');
+            const spanHora = `<span class="hora">${hora}</span>`;
+            
+            let htmlMultimedia = '';
+            
+            // Evaluamos si el archivo es una imagen o un documento general
+            if (tipoMime.startsWith('image/')) {
+                htmlMultimedia = `<img src="${contenido}" class="img-chat" alt="Imagen enviada por ${usuario}">`;
+            } else {
+                htmlMultimedia = `<a href="${contenido}" download="${nombreArchivo}" class="archivo-link">📁 Descargar: ${nombreArchivo}</a>`;
+            }
+
+            div.className = usuario === miUsuario ? 'mensaje yo' : 'mensaje otro';
+            div.innerHTML = `<b>${usuario === miUsuario ? 'Tú' : usuario}</b> ${htmlMultimedia} ${spanHora}`;
+            
+            chatBox.appendChild(div);
+            
+            // Pequeño retardo para asegurar que la imagen renderice antes de hacer scroll
+            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 100);
+        }
+
+        function agregarMensajeSistema(mensaje) {
+            const chatBox = document.getElementById('chatBox');
+            const div = document.createElement('div');
+            div.className = 'sistema';
+            div.innerText = mensaje;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function actualizarListaUsuarios(usuarios) {
+            const divLista = document.getElementById('listaUsuarios');
+            divLista.innerHTML = ''; 
+
+            usuarios.forEach(usuario => {
+                const divUsuario = document.createElement('div');
+                divUsuario.className = 'usuario-online';
+                const nombreAMostrar = usuario === miUsuario ? `${usuario} (Tú)` : usuario;
+                divUsuario.innerHTML = `<div class="punto-verde"></div> ${nombreAMostrar}`;
+                divLista.appendChild(divUsuario);
+            });
+        }
+    </script>
+</body>
+</html>
